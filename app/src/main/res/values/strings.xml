@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyArchitecture</string>
+    <string name="album_activity_title">LATEST ALBUM</string>
+    <string name="album_photo_title_txt">Title</string>
+</resources>
