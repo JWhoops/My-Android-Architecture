@@ -1,9 +1,11 @@
 package com.example.myarchitecture.screens.albumlist
 
+import android.os.Parcelable
 import com.example.myarchitecture.album.Album
 import com.example.myarchitecture.album.FetchAlbumsUseCase
 import com.example.myarchitecture.screens.common.screenNavigator.ScreenNavigator
 import com.example.myarchitecture.screens.common.toasthelper.ToastHelper
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,12 +30,21 @@ class AlbumListController @Inject constructor(
 
     fun onStart() {
         viewMvc.registerListener(this)
-        fetchAlbums()
+        if (!isListLoaded) {
+            fetchAlbums()
+        }
     }
 
     fun onStop() {
         coroutineScope.coroutineContext.cancelChildren()
         viewMvc.unregisterListener(this)
+    }
+
+    fun getStateToSave(): Parcelable = AlbumListControllerSavedState(isListLoaded)
+
+    fun restoreState(savedState: Parcelable?) {
+        val albumListControllerSavedState = savedState as AlbumListControllerSavedState
+        val temp = albumListControllerSavedState.temp
     }
 
     override fun onPostClicked(album: Album) {
@@ -59,4 +70,10 @@ class AlbumListController @Inject constructor(
         toastHelper.showNetworkCallError()
     }
 
+    @Parcelize
+    data class AlbumListControllerSavedState(val temp: Boolean): Parcelable
+
+    companion object {
+        const val SAVED_STATE_KEY = "controller_saved_state_key"
+    }
 }
