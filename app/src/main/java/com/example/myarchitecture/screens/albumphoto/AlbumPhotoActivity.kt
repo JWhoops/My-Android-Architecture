@@ -14,6 +14,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// No unit test, no need to extract logic to standalone controller class
 class AlbumPhotoActivity : BaseActivity(), AlbumPhotoViewMvc.Listener {
 
     @Inject
@@ -26,6 +27,7 @@ class AlbumPhotoActivity : BaseActivity(), AlbumPhotoViewMvc.Listener {
     lateinit var toastHelper: ToastHelper
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var isPhotoLoaded = false
 
     private lateinit var viewMvc: AlbumPhotoViewMvc
 
@@ -39,7 +41,9 @@ class AlbumPhotoActivity : BaseActivity(), AlbumPhotoViewMvc.Listener {
 
     override fun onStart() {
         super.onStart()
-        fetchAlbumPhoto(getAlbumId())
+        if (!isPhotoLoaded) {
+            fetchAlbumPhoto(getAlbumId())
+        }
         viewMvc.registerListener(this)
     }
 
@@ -55,6 +59,7 @@ class AlbumPhotoActivity : BaseActivity(), AlbumPhotoViewMvc.Listener {
             when (result) {
                 is FetchAlbumPhotoUseCase.Result.Success -> {
                     viewMvc.bindPhoto(result.albumPhoto)
+                    isPhotoLoaded = true
                 }
                 is FetchAlbumPhotoUseCase.Result.Failure -> {
                     onAlbumPhotoFetchFail()
